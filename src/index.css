@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'peyda';
+  src: url('./assets/font/PeydaWeb-Black.woff2');
+  src: url('./assets/font/PeydaWeb-Bold.woff2');
+  src: url('./assets/font/PeydaWeb-ExtraBold.woff2');
+  src: url('./assets/font/peydaWeb-extralight.woff2');
+  src: url('./assets/font/peydaWeb-light.woff2');
+  src: url('./assets/font/PeydaWeb-Medium.woff2');
+  src: url('./assets/font/PeydaWeb-Regular.woff2');
+  src: url('./assets/font/PeydaWeb-SemiBold.woff2');
+  src: url('./assets/font/PeydaWeb-Thin.woff2');
+  font-weight: 400;
+  font-style: normal;
+  }
