@@ -42,12 +42,12 @@ const GameBoard = ({showtoast, finishModal, scoreModal}) => {
 
     usePageVisibility(
       () => {console.log("page is going to unload!");
-        setFinishDatas({ time: timer });
+        // setFinishDatas({ time: timer });
         setIsGameEnable(false);
         stopTimer();
         restartGame();
         setShowTimer(false);}, 
-      () => console.log("User returned to the page")
+      () => showtoast("info", "در هنگام بازی، از صفحه بازی خارج نشوید. این کار باعث سوختن آن دور شما می شود")
     );
 
     useEffect(()=>{
