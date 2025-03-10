@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { Route, Routes, Navigate } from "react-router";
 import Layout from "./components/Layout";
@@ -24,23 +23,25 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   async function authenticate() {
-  //     setIsLoading(true);
-  //     const token = localStorage.getItem("token");
-  //     if (token) {
-  //       const res = await netCall("checkauth", "get");
-  //       if (res.status === 200) {
-  //           setIsLoggedIn(true);
-  //           setUserData(res.data);
-  //           // navigate("/");
-  //       }
-  //     }
-  //     setIsLoading(false);
-  //   }
+  useEffect(() => {
+    async function authenticate() {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      if (token) {
+        const res = await netCall("checkauth", "get");
+        if (res.status === 200) {
+            setIsLoggedIn(true);
+            setUserData(res.data);
+            // navigate("/");
+        }else{
+          setIsLoggedIn(false)
+        }
+      }
+      setIsLoading(false);
+    }
 
-  //   authenticate();
-  // }, []);
+    authenticate();
+  }, []);
 
   const toast = useToast();
   const showtoast = (status, text) => {
@@ -66,7 +67,7 @@ function App() {
             path="/"
             element={
               <PrivateRoute isAuthenticated={isLoggedIn}>
-                <HomePage />
+                <HomePage showtoast={showtoast} />
               </PrivateRoute>
             }
           />
