@@ -23,7 +23,7 @@ function ScoreList({ handler }) {
   const calculateTimeLeft = () => {
     const now = new Date();
     const end = new Date();
-    end.setHours(23, 0, 0, 0); // Set to 23:55 today
+    end.setHours(23, 30, 0, 0); // Set to 23:55 today
 
     const timeDiff = end - now; // Difference in milliseconds
     if (timeDiff < 0) return "زمانی باقی نمانده است"; // If time has passed
