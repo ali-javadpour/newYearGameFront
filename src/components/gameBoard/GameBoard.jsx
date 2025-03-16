@@ -13,7 +13,7 @@ const GameBoard = ({ showtoast, finishModal, scoreModal }) => {
 
   const [finishDatas, setFinishDatas] = useState({})
 
-  const { timer, setShowTimer, stopTimer, isGameEnable, setIsGameEnable, userData, startGameDelay, setStartGameDelay } = useContext(UserContext)
+  const { timer, setShowTimer, stopTimer, isGameEnable, setIsGameEnable, userData, startGameDelay, setStartGameDelay, setUserData } = useContext(UserContext)
 
   addEventListener("beforeunload", (event) => {
     console.log("page is going to unload!");
@@ -94,7 +94,10 @@ const GameBoard = ({ showtoast, finishModal, scoreModal }) => {
       console.log("server time:", res);
       console.log("front time:", time);
     } else {
-      await netCall("trys_left", "patch", { trysLeft: userData.trys_left + 1 });
+      const editRes = await netCall("trys_left", "patch", { trysLeft: userData.trys_left + 1 });
+      if(editRes.status === 200){
+        setUserData(res.data);
+      }
       showtoast("error", "به نظر میاد مشکلی به وجود اومده")
     }
 
