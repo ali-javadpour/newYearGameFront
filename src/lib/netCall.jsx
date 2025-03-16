@@ -1,7 +1,8 @@
 import axios from "axios";
 
-// const apiUrl = "http://localhost:3000/";
-const apiUrl = "https://api.libertoes.ir/";
+const apiUrl = "http://localhost:3000/";
+// const apiUrl = "https://api.libertoes.ir/";
+// const apiUrl = "https://testapi.libertoes.ir/";
 
 export const netCall = (url, method, body, forceToken) => {
   const token = localStorage.getItem("token");

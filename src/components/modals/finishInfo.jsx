@@ -7,6 +7,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import { netCall } from "../../lib/netCall";
@@ -24,17 +25,17 @@ function FinishInfo({ handler, data, scoreModal }) {
 
   const submitScore = async () => {
     const res = await netCall("new_score", "patch", {
-        score: data.time,
-      });
-      console.log("res: ", res);
-      if (res.status === 200) {
-        setUserData(res.data);
-        const getScores = await netCall("scores", "get");
-        console.log("score: ", getScores);
-        if (getScores.status === 200) {
-          setScoreData(getScores.data.scores);
-        }
+      score: data.time,
+    });
+    console.log("res: ", res);
+    if (res.status === 200) {
+      setUserData(res.data);
+      const getScores = await netCall("scores", "get");
+      console.log("score: ", getScores);
+      if (getScores.status === 200) {
+        setScoreData(getScores.data.scores);
       }
+    }
   }
 
   useEffect(() => {
@@ -48,8 +49,8 @@ function FinishInfo({ handler, data, scoreModal }) {
           if (userDifference < 0) {
             submitScore()
           }
-        }else{
-            submitScore()
+        } else {
+          submitScore()
         }
       }
     };
@@ -80,24 +81,35 @@ function FinishInfo({ handler, data, scoreModal }) {
           </ModalHeader>
           {/* <ModalCloseButton /> */}
           <ModalBody fontFamily="peyda" textAlign="right">
-            <p className=" text-2xl font-bold ">{data.name} عزیز</p>
-            <p style={{ direction: "rtl" }}>
-              تو تونستی تو {timeRenderer(data.time)} این دور رو تموم کنی{" "}
-            </p>
-            {difference &&
-              (difference > 0 ? (
-                <p>
-                  رکورد الانت {timeRenderer(difference)} از رکورد قبلی کمتر بود
-                  برای همین رکورد قبلیت رو نگه میداریم
-                </p>
-              ) : (
-                <p>
-                  الان تونستی رکوردت رو {timeRenderer(difference * -1)} بهتر کنی{" "}
-                </p>
-              ))}
-            {/* <p style={{ direction: "rtl" }}>
+            {data.time ? <>
+              <p className=" text-2xl font-bold ">{data.name} عزیز</p>
+              <p style={{ direction: "rtl" }}>
+                تو تونستی تو {timeRenderer(data.time)} این دور رو تموم کنی{" "}
+              </p>
+              {difference &&
+                (difference > 0 ? (
+                  <p>
+                    رکورد الانت {timeRenderer(difference)} از رکورد قبلی کمتر بود
+                    برای همین رکورد قبلیت رو نگه میداریم
+                  </p>
+                ) : (
+                  <p>
+                    الان تونستی رکوردت رو {timeRenderer(difference * -1)} بهتر کنی{" "}
+                  </p>
+                ))}
+              {/* <p style={{ direction: "rtl" }}>
               تا الان تو رتبه بندی امروز نفر n ام هستی
             </p> */}
+            </> : <div className="flex justify-center items-center h-full" >
+
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="#007067"
+                size="xl"
+              />
+            </div>}
           </ModalBody>
 
           <ModalFooter>

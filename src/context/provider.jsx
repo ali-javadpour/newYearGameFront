@@ -36,6 +36,8 @@ const MyProvider = ({ children }) => {
 
   const [scoreData, setScoreData] = useState([])
 
+  const [startGameDelay, setStartGameDelay] = useState(0)
+
   const startTimer = () => {
     var startTime = Date.now();
     const id = setInterval(function () {
@@ -60,7 +62,8 @@ const MyProvider = ({ children }) => {
         isGameEnable, setIsGameEnable,
         isNewUser, setIsNewUser,
         scoreData, setScoreData,
-        vectors
+        vectors,
+        startGameDelay, setStartGameDelay
       }}
     >
       {children}

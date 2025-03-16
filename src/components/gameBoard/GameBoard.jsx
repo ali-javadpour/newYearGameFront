@@ -5,62 +5,66 @@ import "./styles.scss";
 import { UserContext } from "../../context/provider";
 import FinishInfo from "../modals/finishInfo";
 import { useDisclosure } from "@chakra-ui/react";
+import { netCall } from "../../lib/netCall";
 
 // source: https://codesandbox.io/p/sandbox/react-card-flip-game-redi3?file=%2Fsrc%2FCard.jsx%3A1%2C1-20%2C1
 
-const GameBoard = ({showtoast, finishModal, scoreModal}) => {
+const GameBoard = ({ showtoast, finishModal, scoreModal }) => {
 
-    const [finishDatas, setFinishDatas] = useState({})
+  const [finishDatas, setFinishDatas] = useState({})
 
-    const {timer, setShowTimer, stopTimer, isGameEnable, setIsGameEnable, userData} = useContext(UserContext)
+  const { timer, setShowTimer, stopTimer, isGameEnable, setIsGameEnable, userData, startGameDelay, setStartGameDelay } = useContext(UserContext)
 
-    addEventListener("beforeunload", (event) => {
+  addEventListener("beforeunload", (event) => {
+    console.log("page is going to unload!");
+    setFinishDatas({ time: timer });
+    setIsGameEnable(false);
+    stopTimer();
+    restartGame();
+    setShowTimer(false);
+    setStartGameDelay(0)
+  });
+
+  const usePageVisibility = (onHide, onShow) => {
+    useEffect(() => {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          onHide && onHide();
+        } else {
+          onShow && onShow();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, [onHide, onShow]);
+  };
+
+  usePageVisibility(
+    () => {
       console.log("page is going to unload!");
-      setFinishDatas({ time: timer });
+      // setFinishDatas({ time: timer });
       setIsGameEnable(false);
       stopTimer();
       restartGame();
       setShowTimer(false);
-    });
+    },
+    () => showtoast("info", "در هنگام بازی، از صفحه بازی خارج نشوید. این کار باعث سوختن آن دور شما می شود")
+  );
 
-    const usePageVisibility = (onHide, onShow) => {
-      useEffect(() => {
-        const handleVisibilityChange = () => {
-          if (document.hidden) {
-            onHide && onHide();
-          } else {
-            onShow && onShow();
-          }
-        };
-    
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        return () => {
-          document.removeEventListener("visibilitychange", handleVisibilityChange);
-        };
-      }, [onHide, onShow]);
-    };
+  useEffect(() => {
 
-    usePageVisibility(
-      () => {console.log("page is going to unload!");
-        // setFinishDatas({ time: timer });
-        setIsGameEnable(false);
-        stopTimer();
-        restartGame();
-        setShowTimer(false);}, 
-      () => showtoast("info", "در هنگام بازی، از صفحه بازی خارج نشوید. این کار باعث سوختن آن دور شما می شود")
-    );
-
-    useEffect(()=>{
-        
-        if(timer >= 180000){
-            setFinishDatas({time: timer})
-            setIsGameEnable(false)
-            stopTimer()
-            restartGame()
-            setShowTimer(false)
-            showtoast("error", "فرصت شما برای بازی تموم شد!")
-        }
-    },[timer])
+    if (timer >= 180000) {
+      setFinishDatas({ time: timer })
+      setIsGameEnable(false)
+      stopTimer()
+      restartGame()
+      setShowTimer(false)
+      showtoast("error", "فرصت شما برای بازی تموم شد!")
+    }
+  }, [timer])
 
   const cards = [
     "TV",
@@ -77,10 +81,26 @@ const GameBoard = ({showtoast, finishModal, scoreModal}) => {
     "tracks"
   ];
 
-  const showFinishModal = (time) => {
-    const data = {time: time, ...userData}
-    setFinishDatas(data)
+  const showFinishModal = async (time) => {
     finishModal.onOpen()
+    stopTimer()
+    const sendData = { time: Date.now() }
+    const res = await netCall("end_time", "post", sendData)
+    let finalNumber = 0
+    if (res.status === 200) {
+
+      finalNumber = Math.floor(res.data.duration - 4000 - startGameDelay)
+      console.log("finalNumber: ", finalNumber);
+      console.log("server time:", res);
+      console.log("front time:", time);
+    } else {
+      await netCall("trys_left", "patch", { trysLeft: userData.trys_left + 1 });
+      showtoast("error", "به نظر میاد مشکلی به وجود اومده")
+    }
+
+    const data = { time: finalNumber, ...userData }
+    setFinishDatas(data)
+    setStartGameDelay(0)
   }
 
   ///////////// HELPER FUNCTION /////////////
@@ -118,31 +138,31 @@ const GameBoard = ({showtoast, finishModal, scoreModal}) => {
   ///////////// GAME LOGIC /////////////
 
   const handleClick = (name, index) => {
-    if(isGameEnable){
-    let currentCard = {
-      name,
-      index
-    };
+    if (isGameEnable) {
+      let currentCard = {
+        name,
+        index
+      };
 
-    //update card is flipped
-    let updateCards = cardList.map(card => {
-      if (card.id === index) {
-        card.flipped = true;
-      }
-      return card;
-    });
-    let updateFlipped = flippedCards;
-    updateFlipped.push(currentCard);
-    setFlippedCards(updateFlipped);
-    setCardList(updateCards);
+      //update card is flipped
+      let updateCards = cardList.map(card => {
+        if (card.id === index) {
+          card.flipped = true;
+        }
+        return card;
+      });
+      let updateFlipped = flippedCards;
+      updateFlipped.push(currentCard);
+      setFlippedCards(updateFlipped);
+      setCardList(updateCards);
 
-    //if 2 cards are flipped, check if they are a match
-    if (flippedCards.length === 2) {
-      // setTimeout(() => {
+      //if 2 cards are flipped, check if they are a match
+      if (flippedCards.length === 2) {
+        // setTimeout(() => {
         check();
-      // }, 750);
+        // }, 750);
+      }
     }
-}
   };
 
   const check = () => {
@@ -173,13 +193,12 @@ const GameBoard = ({showtoast, finishModal, scoreModal}) => {
     });
     setGameOver(done);
     setShowTimer(!done)
-    if(done){
-        showFinishModal(timer)
-        stopTimer()
-        setIsGameEnable(false)
-        setTimeout(()=>{
-            restartGame()
-        },3000)
+    if (done) {
+      showFinishModal(timer)
+      setIsGameEnable(false)
+      setTimeout(() => {
+        restartGame()
+      }, 3000)
     }
   };
 
@@ -213,7 +232,7 @@ const GameBoard = ({showtoast, finishModal, scoreModal}) => {
             name={card.name}
             flipped={card.flipped}
             matched={card.matched}
-            clicked={flippedCards.length === 2 ? () => {} : handleClick}
+            clicked={flippedCards.length === 2 ? () => { } : handleClick}
           />
         ))}
       {/* {gameOver && <GameOver restartGame={restartGame} />} */}

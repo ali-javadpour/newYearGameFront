@@ -32,7 +32,8 @@ const HomePage = ({ showtoast }) => {
     setUserData,
     isNewUser,
     setScoreData,
-    vectors
+    vectors,
+    setStartGameDelay
   } = useContext(UserContext);
 
   const infoModal = useDisclosure();
@@ -46,12 +47,27 @@ const HomePage = ({ showtoast }) => {
       const sendData = { trysLeft: userData.trys_left - 1 };
       const res = await netCall("trys_left", "patch", sendData);
       if(res.status === 200){
-        setUserData(res.data);
-        const id = setInterval(function () {
-          // milliseconds elapsed since start
-          setGameStartTimer((e) => e - 1); // in seconds
-        }, 1000);
-        setIntervalId(id);
+        const startReq = Date.now()
+        const timeSendData = {time: Date.now()}
+        const startRes = await netCall("start_time", "post", timeSendData)
+        if(startRes.status === 200){
+          const endReq = Date.now()
+          const reqDelay = (endReq - startReq)/2
+          setStartGameDelay(reqDelay)
+          console.log("reqDelay: ",reqDelay);
+          
+          setUserData(res.data);
+          const id = setInterval(function () {
+            // milliseconds elapsed since start
+            setGameStartTimer((e) => e - 1); // in seconds
+          }, 1000);
+          setIntervalId(id);
+        }else{
+          // give user chance back
+          await netCall("trys_left", "patch", { trysLeft: userData.trys_left + 1 });
+          showtoast("error", "به نظر میاد مشکلی به وجود اومده")
+          setShowGameTimer(false);
+        }
       }else{
         showtoast("error", "به نظر میاد مشکلی به وجود اومده")
         setShowGameTimer(false);
