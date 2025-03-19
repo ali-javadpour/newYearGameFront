@@ -66,6 +66,12 @@ const GameBoard = ({ showtoast, finishModal, scoreModal }) => {
     }
   }, [timer])
 
+  useEffect(()=>{
+    if(isGameEnable){
+      restartGame()
+    }
+  },[isGameEnable])
+
   const cards = [
     "TV",
     "TV",
