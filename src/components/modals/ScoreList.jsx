@@ -15,7 +15,7 @@ import { toFarsiNumber } from "../toolbox";
 import crown from "../../assets/img/crown.png"
 
 function ScoreList({ handler }) {
-  const { scoreData, vectors } = useContext(UserContext);
+  const { scoreData, vectors, userData } = useContext(UserContext);
 
   const [timeLeft, setTimeLeft] = useState("");
 
@@ -36,14 +36,27 @@ function ScoreList({ handler }) {
     )} دقیقه و ${toFarsiNumber(seconds)} ثانیه`;
   };
 
+  handler.on
+
   useEffect(() => {
+
     const interval = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     // Clear interval on component unmount
     return () => clearInterval(interval);
+    
   }, []);
+
+  useEffect(()=>{
+    setTimeout(() => {
+      const element = document.getElementById(userData.id);
+  
+      element.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }, 1000);
+
+  },[handler.isOpen])
 
   return (
     <>
@@ -65,20 +78,25 @@ function ScoreList({ handler }) {
                 {" "}
                 {timeLeft}{" "}
               </p>
-              <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto overflow-x-hidden scrollbar-hidden " style={{scrollbarWidth: "none"}} >
+              <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto overflow-x-hidden scrollbar-hidden border" style={{scrollbarWidth: "none"}} >
                 {scoreData.map((item, index) => {
+                  // console.log("userData: ", userData);
+                  // console.log("scoreData: ", scoreData);
+                  
                   return (
                     <div
-                      className="relative flex flex-row justify-between items-center bg-gray-300 p-3 rounded-2xl "
-                      style={
-                        index === 0
+                      className="relative flex flex-row justify-between items-center bg-gray-300 p-3 rounded-2xl border-indigo-600 "
+                      id={item.id}
+                      style={{
+                        ...(index === 0
                           ? { backgroundColor: "#FFD700" }
                           : index === 1
                           ? { backgroundColor: "#C0C0C0" }
                           : index === 2
                           ? { backgroundColor: "#CD7F32" }
-                          : { backgroundColor: "#f2f2f2" }
-                      }
+                          : { backgroundColor: "#f2f2f2" }),
+                          ...(userData.id === item.id) ? {border: "2px green solid"} : {}
+                      }}
                     >
                       <p className="text-xs" style={{ direction: "rtl" }}>
                         {" "}
