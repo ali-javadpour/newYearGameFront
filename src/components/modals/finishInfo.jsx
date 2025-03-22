@@ -13,14 +13,23 @@ import { useContext, useEffect, useState } from "react";
 import { netCall } from "../../lib/netCall";
 import { UserContext } from "../../context/provider";
 
-function FinishInfo({ handler, data, scoreModal }) {
+function FinishInfo({ handler, data, scoreModal, setFinishDatas }) {
   const [difference, setDifference] = useState("");
 
   const { setUserData, setScoreData } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false)
 
-  const closeHandle = () => {
-    handler.onClose();
-    setTimeout(scoreModal.onOpen(), 1000);
+  const closeHandle = async () => {
+    setIsLoading(true)
+    const getScores = await netCall("scores", "get");
+      console.log("score: ", getScores);
+      if (getScores.status === 200) {
+        setScoreData(getScores.data.scores);
+        handler.onClose();
+        setTimeout(scoreModal.onOpen(), 1000);
+        setFinishDatas({})
+      }
+      setIsLoading(false)
   };
 
   const submitScore = async () => {
@@ -30,11 +39,7 @@ function FinishInfo({ handler, data, scoreModal }) {
     console.log("res: ", res);
     if (res.status === 200) {
       setUserData(res.data);
-      const getScores = await netCall("scores", "get");
-      console.log("score: ", getScores);
-      if (getScores.status === 200) {
-        setScoreData(getScores.data.scores);
-      }
+      
     }
   }
 
@@ -118,6 +123,8 @@ function FinishInfo({ handler, data, scoreModal }) {
               mr={3}
               onClick={closeHandle}
               fontFamily="peyda"
+              disabled={isLoading}
+              isDisabled={isLoading}
             >
               بستن
             </Button>

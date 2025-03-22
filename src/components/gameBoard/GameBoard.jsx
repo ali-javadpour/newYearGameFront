@@ -245,7 +245,7 @@ const GameBoard = ({ showtoast, finishModal, scoreModal }) => {
           />
         ))}
       {/* {gameOver && <GameOver restartGame={restartGame} />} */}
-      <FinishInfo handler={finishModal} data={finishDatas} scoreModal={scoreModal} />
+      <FinishInfo handler={finishModal} data={finishDatas} scoreModal={scoreModal} setFinishDatas={setFinishDatas} />
     </div>
   );
 };
