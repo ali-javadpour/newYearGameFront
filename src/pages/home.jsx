@@ -4,7 +4,7 @@ import logo from "../assets/img/logo.png";
 import winner from "../assets/img/winner.png";
 import account from "../assets/img/account.png";
 import game from "../assets/img/gameIcon.png";
-import { Avatar, useDisclosure } from "@chakra-ui/react";
+import { Avatar, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
 import { InfoOutlineIcon, TimeIcon } from "@chakra-ui/icons";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/provider";
@@ -39,6 +39,7 @@ const HomePage = ({ showtoast }) => {
   const infoModal = useDisclosure();
   const scoreModal = useDisclosure();
   const finishModal = useDisclosure();
+  const notifModal = useDisclosure();
 
   const start = async () => {
     if (userData.trys_left > 0) {
@@ -46,33 +47,33 @@ const HomePage = ({ showtoast }) => {
       setShowGameTimer(true);
       const sendData = { trysLeft: userData.trys_left - 1 };
       const res = await netCall("trys_left", "patch", sendData);
-      if(res.status === 200){
+      if (res.status === 200) {
         const startReq = Date.now()
-        const timeSendData = {time: Date.now()}
+        const timeSendData = { time: Date.now() }
         const startRes = await netCall("start_time", "post", timeSendData)
-        if(startRes.status === 200){
+        if (startRes.status === 200) {
           const endReq = Date.now()
-          const reqDelay = (endReq - startReq)/2
+          const reqDelay = (endReq - startReq) / 2
           setStartGameDelay(reqDelay)
-          console.log("reqDelay: ",reqDelay);
-          
+          console.log("reqDelay: ", reqDelay);
+
           setUserData(res.data);
           const id = setInterval(function () {
             // milliseconds elapsed since start
             setGameStartTimer((e) => e - 1); // in seconds
           }, 1000);
           setIntervalId(id);
-        }else{
+        } else {
           // give user chance back
           await netCall("trys_left", "patch", { trysLeft: userData.trys_left + 1 });
           showtoast("error", "به نظر میاد مشکلی به وجود اومده")
           setShowGameTimer(false);
         }
-      }else{
+      } else {
         showtoast("error", "به نظر میاد مشکلی به وجود اومده")
         setShowGameTimer(false);
       }
-    }else{
+    } else {
       showtoast("info", "فرصتت واسه بازی امروز تموم شده، فردا ۵ تا شانس دیگه داری!")
     }
   };
@@ -88,16 +89,17 @@ const HomePage = ({ showtoast }) => {
     }
   }, [gameStartTimer]);
 
-  useEffect(()=>{
+  useEffect(() => {
+    notifModal.onOpen()
     const getScores = async () => {
       const res = await netCall("scores", "get")
       console.log("score: ", res);
-      if(res.status === 200){
+      if (res.status === 200) {
         setScoreData(res.data.scores)
       }
     }
     getScores()
-  },[])
+  }, [])
 
   useEffect(() => {
     if (!!isNewUser) {
@@ -150,7 +152,7 @@ const HomePage = ({ showtoast }) => {
         </div>
         <InfoOutlineIcon h="100%" w={6} onClick={infoModal.onOpen} />
       </div>
-      <div className=" absolute w-full h-full flex justify-center items-center " style={showGameTimer ? {zIndex:10} : {zIndex:-10}} >
+      <div className=" absolute w-full h-full flex justify-center items-center " style={showGameTimer ? { zIndex: 10 } : { zIndex: -10 }} >
         {showGameTimer && (
           <p className=" text-[150px] bg-[#ffffff90] px-8 pt-4 rounded-2xl ">
             {gameStartTimer > 1 ? toFarsiNumber(gameStartTimer - 1) : "شروع"}
@@ -159,6 +161,30 @@ const HomePage = ({ showtoast }) => {
       </div>
       <GameInfo handler={infoModal} />
       <ScoreList handler={scoreModal} />
+      <Modal isOpen={notifModal.isOpen} onClose={notifModal.onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader textAlign="center" fontFamily="peyda" fontSize="2xl">
+            آخرین مهلت بازی
+          </ModalHeader>
+          {/* <ModalCloseButton /> */}
+          <ModalBody>
+            <div className=" text-center font-[peyda] font-black " >
+              امروز آخرین روزیه که میتونی بازی کنی و تخفیف بگیری پس فرصتو از دست نده
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={notifModal.onClose}
+              fontFamily="peyda"
+            >
+              بستن
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
