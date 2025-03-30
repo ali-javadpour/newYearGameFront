@@ -248,7 +248,9 @@ const LoginPage = ({ showtoast }) => {
         <img src={textLogo} />
         {page === "login" ? (
           <div>
-            <p className=" font-bold text-center ">آماده ای بازیو شروع کنیم؟</p>
+            <p className=" font-bold text-center "> فرصت بازی تموم شده، ممنون که تو این مدت اومدی و بازی کردی </p>
+            <p className=" font-bold text-center " style={{direction: "rtl"}} > سال نوتون مبارک ☺️ </p>
+            {/* <p className=" font-bold text-center ">آماده ای بازیو شروع کنیم؟</p>
             <InputGroup>
               <InputLeftElement pointerEvents="none">
                 <PhoneIcon color="gray.300" />
@@ -269,7 +271,7 @@ const LoginPage = ({ showtoast }) => {
               onClick={submit}
             >
               بزن بریم
-            </Button>
+            </Button> */}
           </div>
         ) : page === "otp" ? (
           <div>

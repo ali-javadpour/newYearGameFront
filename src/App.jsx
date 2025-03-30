@@ -23,25 +23,25 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    async function authenticate() {
-      setIsLoading(true);
-      const token = localStorage.getItem("token");
-      if (token) {
-        const res = await netCall("checkauth", "get");
-        if (res.status === 200) {
-            setIsLoggedIn(true);
-            setUserData(res.data);
-            // navigate("/");
-        }else{
-          setIsLoggedIn(false)
-        }
-      }
-      setIsLoading(false);
-    }
+  // useEffect(() => {
+  //   async function authenticate() {
+  //     setIsLoading(true);
+  //     const token = localStorage.getItem("token");
+  //     if (token) {
+  //       const res = await netCall("checkauth", "get");
+  //       if (res.status === 200) {
+  //           setIsLoggedIn(true);
+  //           setUserData(res.data);
+  //           // navigate("/");
+  //       }else{
+  //         setIsLoggedIn(false)
+  //       }
+  //     }
+  //     setIsLoading(false);
+  //   }
 
-    authenticate();
-  }, []);
+  //   authenticate();
+  // }, []);
 
   const toast = useToast();
   const showtoast = (status, text) => {
